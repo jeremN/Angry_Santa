@@ -1,0 +1,33 @@
+@charset 'UTF-8';
+
+/*Variable, mixins, functions, placeholder*/
+@import 'helpers/variables';
+@import 'helpers/mixins';
+@import 'helpers/placeholders';
+
+/*Base*/
+@import 'base/fonts'; 			//Font
+
+/*Layout*/
+@import 'layout/header'; 		//Header
+@import 'layout/form';			//Form
+@import 'layout/footer'; 		//Footer
+
+/*Pages*/
+@import 'pages/index'; 			//Index page elements
+
+/*Components*/
+@import 'components/nav'; 		//Nav components
+@import 'components/button'; 	//Buttons components
+
+/*Animate*//*
+@import 'animation/animate';	//Animate.css
+@import 'animation/animation';	//Own animation
+*/
+
+/*Media Queries*/
+@import 'mediaqueries/media640px';	
+@import 'mediaqueries/media768px';
+@import 'mediaqueries/media992px';	
+@import 'mediaqueries/media1200px';	
+@import 'mediaqueries/media1920px';	
