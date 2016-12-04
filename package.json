@@ -1,12 +1,13 @@
 {
-  "name": "LastImmo",
+  "name": "Angry_Santa",
   "version": "1.0.0",
-  "description": "LastImmo website",
+  "description": "Horizontal shooter game",
   "main": "gulpfile.js",
+  "url": "https://github.com/jeremN/Angry_Santa.git",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "jeremie néhlil @liamone",
+  "author": "jeremie néhlil",
   "license": "ISC",
   "devDependencies": {
     "browser-sync": "^2.13.0",
