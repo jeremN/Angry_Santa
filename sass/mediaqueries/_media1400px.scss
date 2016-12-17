@@ -1,0 +1,15 @@
+@media screen and( min-width: $desktop-small){
+
+	h1{
+		text-align: left;
+		margin: 5% 0 0 5%;
+
+		img{
+			max-width: 767px;
+		}
+	}
+
+	.btn{
+		margin: 2em 0 0 30%;
+	}
+}

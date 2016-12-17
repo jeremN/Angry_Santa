@@ -1,14 +1,32 @@
-//window.onload = function(){
+$(window).load(function(){
 
-	//Create phaser game and inject in gameContainer div
-  var game = new Phaser.Game(1400, 840, Phaser.CANVAS, 'gameContainer');
-	
-	game.state.add('Boot', BasicGame.Boot);
-	game.state.add('Preloader', BasicGame.Preloader);
-	game.state.add('MainMenu', BasicGame.MainMenu);
-	game.state.add('Game', BasicGame.Game);
+	$('.loader').fadeOut(2000);
+});
 
-	//Start the boot state
-	game.state.start('Boot');
+$(document).ready(function(){
 
-//};
+	$('#playGame').click(function(e){
+
+		e.preventDefault();
+
+		$('#home').fadeOut();
+		$('#gameContainer').css('display', 'block');
+		$('#gameContainer').addClass('zoomIn');
+
+		launcher();
+
+	});
+
+	var launcher = function(){
+
+	  	var game = new Phaser.Game(1400, 840, Phaser.CANVAS, 'gameContainer');
+		
+		game.state.add('Boot', SantaGame.Boot);
+		game.state.add('Preloader', SantaGame.Preloader);
+		game.state.add('MainMenu', SantaGame.MainMenu);
+		game.state.add('Game', SantaGame.Game);
+
+		//Start the boot state
+		game.state.start('Boot');
+	}
+});

@@ -1,6 +1,8 @@
 //save score in localstorage
     /*
-     On game load or initgame.score = 0;
+     On game load or initgame.
+
+     score = 0;
 
      game.highScore = localStorage.getItem('highscore');
 
@@ -12,7 +14,7 @@
     */
 //OU
     /*
-     if (this.game.device.localStorage) {
+    if (this.game.device.localStorage) {
         localStorage.score = this.score;
         if (localStorage.highScore) {
             if (localStorage.score > localStorage.highScore) {
@@ -27,19 +29,39 @@
 
 //A FAIRE
 /*
-->Ajouter vagues enemy & deplacement en vague  
-    =>OK mais correction a prévoir
 
+CODE:
 
-->Ajouter power up lvl
-->Ajouter collect cadeau
-->Voir intégration mobile / tablet pour les commandes
+    ->Ajouter power up lvl
+    =>OK->Ajouter collect cadeau
 
-->Graphisme
-->Site statique du jeu
+    ->Site statique du jeu (inté + anim js/css)
 
+///////////////////////////////
+GRAPHISME:
+
+    =>JEU
+        ->Pere noel + traineau + rene
+        ->2-3 types d'ennemies + Boss
+        ->2-3 types d'armes (dont armes ennemies)
+        ->Décors (3/4 layers)
+        ->Musique / Sons
+        ->Life icône
+        ->Splash screen (titre jeu + commandes jeu)
+
+    =>SITE
+        =>OK->Background
+        ->Button "jouer"
+        =>OK->Favicon
+        ->Panneau à propos
+        ->Anim du site
+
+//////////////////////////////
 BONUS:
-
-->Transformer le jeu en app pour Ios / Android
+    
+    =>OK->Voir intégration mobile / tablet pour les commandes
+    =>OK->Sauvegarde du score (sur localstorage)
+    ->Transformer le jeu en app pour Ios / Android
+    ->Force landscape
 	
 */

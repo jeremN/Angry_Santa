@@ -6,6 +6,7 @@
 @import 'helpers/placeholders';
 
 /*Base*/
+@import 'base/reset';			//Reset
 @import 'base/fonts'; 			//Font
 
 /*Layout*/
@@ -30,4 +31,5 @@
 @import 'mediaqueries/media768px';
 @import 'mediaqueries/media992px';	
 @import 'mediaqueries/media1200px';	
-@import 'mediaqueries/media1920px';	
+@import 'mediaqueries/media1400px';	
+@import 'mediaqueries/media1920px';

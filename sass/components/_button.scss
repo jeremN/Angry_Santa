@@ -1,0 +1,18 @@
+.btn{
+
+	width: 10em;
+	height: 3em;
+	display: block;
+	margin: 1em auto 0;
+	border: 2px solid $orange-light;
+	background: none;
+	color: $orange-light;
+	transition: all ease-in 0.25s;
+	font-size: 18px;
+	cursor: pointer;
+
+	&:hover{
+		color: $white;
+		background: $orange-light;
+	}
+}

@@ -1,11 +1,14 @@
 //The actual game.
-BasicGame.Game = function(game){};
+SantaGame.Game = function(game){};
 
-BasicGame.Game.prototype = {
+
+SantaGame.Game.prototype = {
 
 	create: function(){
 
+		this.getHighscore();
 		this.setupBackground();
+		this.setupParticles();
 		this.setupPlayer();
     	this.setupEnemies();
     	this.setupBullets();
@@ -24,7 +27,7 @@ BasicGame.Game.prototype = {
 
  		this.checkCollisions();
     	this.spawnEnemies();
-    	//this.spawnEnemiesWaves();
+    	this.updateWindDirection();
     	this.enemyFire();
     	this.processPlayerInput();
     	this.processDelayedEffects();
@@ -35,6 +38,7 @@ BasicGame.Game.prototype = {
 		//this.game.debug.body(this.bullet);
 		//this.game.debug.body(this.enemy);
 		//this.game.debug.body(this.player);
+		//this.game.debug.spriteInfo(this.enemy);
 	},
 
 
@@ -48,6 +52,8 @@ BasicGame.Game.prototype = {
 
 		this.sound.volume = 0.3;
 
+		//this.ambianceSFX = this.add.audio('ambiance');
+		//this.ambianceSFX.play();
 		this.explosionSFX = this.add.audio('explosion');
 		this.playerExplosionSFX = this.add.audio('playerExplosion');
 	    this.enemyFireSFX = this.add.audio('enemyFire');
@@ -58,8 +64,37 @@ BasicGame.Game.prototype = {
 	setupBackground: function(){
 
 		//Background layers
-		this.sea = this.add.tileSprite(0, 0, this.game.width, this.game.height, 'sea');
-		this.sea.autoScroll(-120, BasicGame.SEA_SCROLL_SPEED);
+		this.sky = this.add.tileSprite(0, 0, 1400, 840, 'sky');
+		this.sky.autoScroll(0, 0);
+
+		this.mountain = this.add.tileSprite(0, 0, 1400, 840, 'mountain1');
+		this.mountain.autoScroll(-75, 0);
+		
+		this.mountain2 = this.add.tileSprite(0, 0, 1400, 840, 'mountain2');
+		this.mountain2.autoScroll(-150, 0);
+
+		this.mountain3 = this.add.tileSprite(0, 0, 1400, 840, 'mountain3');
+		this.mountain3.autoScroll(-300, 0);
+
+		this.forest = this.add.tileSprite(0, 0, 1400, 840, 'forest');
+		this.forest.autoScroll(-400, 0);
+	},
+
+	setupParticles: function(){
+		//snow particles
+		this.snowEmmitter = this.add.emitter(this.world.centerX, -20, 250);
+		this.snowEmmitter.makeParticles('snowflakes');
+		this.snowEmmitter.maxParticleScale = 0.6;
+		this.snowEmmitter.minParticleScale = 0.2;
+		this.snowEmmitter.setYSpeed(100, 200);
+		this.snowEmmitter.gravity = 0;
+		this.snowEmmitter.width = this.world.width * 1.5;
+		this.snowEmmitter.minRotation = 0;
+		this.snowEmmitter.maxRotation = 40;
+
+		this.changeWindDirection();
+
+		this.snowEmmitter.start(false, 10000, 100);
 	},
 
 	setupPlayer: function(){
@@ -67,14 +102,14 @@ BasicGame.Game.prototype = {
 		//Player
 		this.player = this.add.sprite(this.game.width / 10, this.game.height / 2, 'player');
 		this.player.anchor.setTo(0.5, 0.5);
-		this.player.animations.add('fly', [0, 1, 2], 20, true);
-		this.player.animations.add('ghost', [3, 0, 3, 1], 20, true);
+		this.player.animations.add('fly', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ,13, 14], 30, true);
+		this.player.animations.add('ghost', [15, 1, 17, 3, 19, 5, 21, 7, 23, 9, 25 ,11, 27 ,13, 29], 30, true);
 		this.player.play('fly');
-		this.player.angle = 90;
+		this.player.angle = 0;
 		this.physics.enable(this.player, Phaser.Physics.ARCADE);
-		this.player.speed = BasicGame.PLAYER_SPEED;
+		this.player.speed = SantaGame.PLAYER_SPEED;
 		this.player.body.collideWorldBounds = true;
-		this.player.body.setSize(20, 20, 28, 22); //20 x 20px hitbox, centered  hight than the center
+		this.player.body.setSize(50, 50, 60, 60); //20 x 20px hitbox, centered  hight than the center
 		this.weaponLevel = 0;
 	},
 
@@ -87,23 +122,23 @@ BasicGame.Game.prototype = {
 		this.enemyPool.createMultiple(50, 'greenEnemy');
 		this.enemyPool.setAll('anchor.x', 0.5);				
 		this.enemyPool.setAll('anchor.y', 0.5);
-		this.enemyPool.setAll('angle', 90);
+		this.enemyPool.setAll('angle', 0);
 		this.enemyPool.setAll('outOfBoundsKill', true);		
 		this.enemyPool.setAll("checkWorldBounds", true);
 		this.enemyPool.setAll(
 
-			'reward', BasicGame.ENEMY_REWARD, false, false, 0, true
+			'reward', SantaGame.ENEMY_REWARD, false, false, 0, true
 		);
 
 		this.enemyPool.setAll(
 
-			'dropRate', BasicGame.ENEMY_DROP_RATE, false, false, 0, true  //20% chance of droping powerup
+			'dropRate', SantaGame.ENEMY_DROP_RATE, false, false, 0, true  //chance of droping powerup
 		);
 
 		this.enemyPool.forEach(function(enemy){
 
-			enemy.animations.add('fly', [0, 1, 2], 20, true);		//Set anim for each sprite
-			enemy.animations.add('hit', [3, 1, 3, 2], 20, false);
+			enemy.animations.add('fly', [0, 1, 2, 3, 4], 20, true);		//Set anim for each sprite
+			enemy.animations.add('hit', [0, 1, 2, 3, 4], 20, false);
 			enemy.events.onAnimationComplete.add(function(e){
 
 				e.play('fly');
@@ -111,7 +146,7 @@ BasicGame.Game.prototype = {
 		});
 
 		this.nextEnemyAt = 0;									
-		this.enemyDelay = BasicGame.SPAWN_ENEMY_DELAY;
+		this.enemyDelay = SantaGame.SPAWN_ENEMY_DELAY;
 
 		//Enemy 2nd type
 		this.shooterPool = this.add.group();
@@ -120,23 +155,25 @@ BasicGame.Game.prototype = {
 		this.shooterPool.createMultiple(20, 'whiteEnemy');
 		this.shooterPool.setAll('anchor.x', 0.5);				
 		this.shooterPool.setAll('anchor.y', 0.5);
-		this.shooterPool.setAll('angle', 90);
+		this.shooterPool.setAll('angle', 0);
+		this.shooterPool.setAll('scale.x', 0.65);
+		this.shooterPool.setAll('scale.y', 0.65);
 		this.shooterPool.setAll('outOfBoundsKill', true);		
 		this.shooterPool.setAll("checkWorldBounds", true);
 		this.shooterPool.setAll(
 
-			'reward', BasicGame.SHOOTER_REWARD, false, false, 0, true
+			'reward', SantaGame.SHOOTER_REWARD, false, false, 0, true
 		);
 
 		this.shooterPool.setAll(
 
-			'dropRate', BasicGame.SHOOTER_DROP_RATE, false, false, 0, true //30% chance of droping powerup
+			'dropRate', SantaGame.SHOOTER_DROP_RATE, false, false, 0, true //chance of droping powerup
 		);
 
 		this.shooterPool.forEach(function(enemy){
 
-			enemy.animations.add('fly', [0, 1, 2], 20, true);
-			enemy.animations.add('hit', [3, 1 ,3, 2], 20, false);
+			enemy.animations.add('fly', [0, 1, 2, 3, 4], 20, true);
+			enemy.animations.add('hit', [5, 1 ,7, 3, 9], 20, false);
 			enemy.events.onAnimationComplete.add(function(e){
 
 				e.play('fly');
@@ -144,78 +181,7 @@ BasicGame.Game.prototype = {
 		});
 
 		this.nextShooterAt = this.time.now + Phaser.Timer.SECOND * 5;
-		this.shooterDelay = BasicGame.SPAWN_SHOOTER_DELAY;
-
-		//Destroyer enemy
-		this.destroyerPool = this.add.group();
-		this.destroyerPool.enableBody = true;
-		this.destroyerPool.physicsBodyType = Phaser.Physics.ARCADE;
-		this.destroyerPool.createMultiple(50, 'destroyerEnemy');
-		this.destroyerPool.setAll('anchor.x', 0.5);				
-		this.destroyerPool.setAll('anchor.y', 0.5);
-		this.destroyerPool.setAll('scale.x', 0.5);				
-		this.destroyerPool.setAll('scale.y', 0.5);
-		this.destroyerPool.setAll('angle', 90);
-		this.destroyerPool.setAll('outOfBoundsKill', true);		
-		this.destroyerPool.setAll("checkWorldBounds", true);
-		this.destroyerPool.setAll(
-
-			'reward', BasicGame.ENEMY_REWARD, false, false, 0, true
-		);
-
-		this.destroyerPool.setAll(
-
-			'dropRate', BasicGame.ENEMY_DROP_RATE, false, false, 0, true  //20% chance of droping powerup
-		);
-
-		this.destroyerPool.forEach(function(enemy){
-
-			enemy.animations.add('fly', [0, 1], 20, true);		//Set anim for each sprite
-			enemy.animations.add('hit', [2, 1, 2, 0], 20, false);
-			enemy.events.onAnimationComplete.add(function(e){
-
-				e.play('fly');
-			}, this);
-		});
-
-		this.nextDestroyerAt = 0;									
-		this.destroyerDelay = BasicGame.SPAWN_ENEMY_DELAY * 7;
-
-
-		//Enemy Waves type
-		this.shooterWavesPool = this.add.group();
-		this.shooterWavesPool.enableBody = true;
-		this.shooterWavesPool.physicsBodyType = Phaser.Physics.ARCADE;
-		this.shooterWavesPool.createMultiple(30, 'whiteEnemy');
-		this.shooterWavesPool.setAll('anchor.x', 0.5);
-		this.shooterWavesPool.setAll('anchor.y', 0.5);
-		this.shooterWavesPool.setAll('scale.x', 0.95);
-		this.shooterWavesPool.setAll('scale.y', 0.95);
-		this.shooterWavesPool.setAll('angle', 90);
-		this.shooterWavesPool.setAll('outOfBoundsKill', true);		
-		this.shooterWavesPool.setAll("checkWorldBounds", true);
-		this.shooterWavesPool.setAll(
-
-			'reward', BasicGame.SHOOTERWAVE_REWARD, false, false, 0, true
-		);
-
-		this.shooterWavesPool.setAll(
-
-			'dropRate', BasicGame.SHOOTERWAVE_DROP_RATE, false, false, 0, true
-		);
-
-		this.shooterWavesPool.forEach(function(enemy){
-
-			enemy.animations.add('fly', [0, 1], 20, true);
-			enemy.animations.add('hit', [2, 1, 2, 0], 20, false);
-			enemy.events.onAnimationComplete.add(function(e){
-
-				e.play('fly');
-			}, this);
-		});
-
-		this.nextShooterWavesAt = this.time.now + Phaser.Timer.SECOND * 5;
-		this.shooterWavesDelay = BasicGame.SPAWN_SHOOTERWAVE_DELAY;
+		this.shooterDelay = SantaGame.SPAWN_SHOOTER_DELAY;
 
 
 		//Boss
@@ -225,23 +191,23 @@ BasicGame.Game.prototype = {
 		this.bossPool.createMultiple(1, 'boss');
 		this.bossPool.setAll('anchor.x', 0.5);				
 		this.bossPool.setAll('anchor.y', 0.5);
-		this.bossPool.setAll('angle', 90);
+		this.bossPool.setAll('angle', 0);
 		this.bossPool.setAll('outOfBoundsKill', true);		
 		this.bossPool.setAll("checkWorldBounds", true);
 		this.bossPool.setAll(
 
-			'reward', BasicGame.BOSS_REWARD, false, false, 0, true
+			'reward', SantaGame.BOSS_REWARD, false, false, 0, true
 		);
 
 		this.bossPool.setAll(
 
-			'dropRate', BasicGame.BOSS_DROP_RATE, false, false, 0 , true
+			'dropRate', SantaGame.BOSS_DROP_RATE, false, false, 0 , true
 		);
 
 		this.bossPool.forEach(function(enemy){
 
-			enemy.animations.add('fly', [0, 1, 2], 20, true);
-			enemy.animations.add('hit', [3, 1, 3, 2], 20, false);
+			enemy.animations.add('fly', [0, 1, 2, 4, 5, 6], 20, true);
+			enemy.animations.add('hit', [7, 1, 9, 3, 11, 5, 13], 20, false);
 			enemy.events.onAnimationComplete.add(function(e){
 
 				e.play('fly');
@@ -252,13 +218,46 @@ BasicGame.Game.prototype = {
 		this.bossApproaching = false;
 	},
 
+	setupCollectibles: function(){
+
+		//Gift Waves
+		this.giftPool = this.add.group();
+		this.giftPool.enableBody = true;
+		this.giftPool.physicsBodyType = Phaser.Physics.ARCADE;
+		this.giftPool.createMultiple(10, 'gift');
+		this.giftPool.setAll('anchor.x', 0.5);
+		this.giftPool.setAll('anchor.y', 0.5);
+		this.giftPool.setAll('scale.x', 0.95);
+		this.giftPool.setAll('scale.y', 0.95);
+		this.giftPool.setAll('angle', 0);
+		this.giftPool.setAll('outOfBoundsKill', true);		
+		this.giftPool.setAll("checkWorldBounds", true);
+		this.giftPool.setAll(
+
+			'reward', SantaGame.GIFT_REWARD, false, false, 0, true
+		);
+
+		/*this.giftPool.forEach(function(gift){
+
+			gift.animations.add('fly', [0, 1], 20, true);
+			gift.animations.add('hit', [2, 1, 2, 0], 20, false);
+			gift.events.onAnimationComplete.add(function(e){
+
+				e.play('fly');
+			}, this);
+		});*/
+
+		this.nextGiftAt = this.time.now + Phaser.Timer.SECOND * 5;
+		this.giftDelay = SantaGame.SPAWN_GIFT_DELAY * 2;
+	},
+
 	setupBullets: function(){
 
 		//EnemyBullet
 		this.enemyBulletPool = this.add.group();
 		this.enemyBulletPool.enableBody = true;
 		this.enemyBulletPool.physicsBodyType = Phaser.Physics.ARCADE;//Add physics to the whole group
-		this.enemyBulletPool.createMultiple(100, 'enemyBullet');			//Add 100 bullet sprite in group
+		this.enemyBulletPool.createMultiple(50, 'enemyBullet');		//Add 100 bullet sprite in group
 		this.enemyBulletPool.setAll('anchor.x', 0.5);				//Set anchor of all sprites
 		this.enemyBulletPool.setAll('anchor.y', 0.5);
 		this.enemyBulletPool.setAll('outOfBoundsKill', true);		//Automatically kill bullet sprite when out of bounds
@@ -272,13 +271,13 @@ BasicGame.Game.prototype = {
 		this.bulletPool = this.add.group();						//Add empty sprite group into game
 		this.bulletPool.enableBody = true;
 		this.bulletPool.physicsBodyType = Phaser.Physics.ARCADE;//Add physics to the whole group
-		this.bulletPool.createMultiple(100, 'bullet');			//Add 100 bullet sprite in group
+		this.bulletPool.createMultiple(100, 'bullet');			//Add 50 bullet sprite in group
 		this.bulletPool.setAll('anchor.x', 0.5);				//Set anchor of all sprites
 		this.bulletPool.setAll('anchor.y', 0.5);
 		this.bulletPool.setAll('outOfBoundsKill', true);		//Automatically kill bullet sprite when out of bounds
 		this.bulletPool.setAll("checkWorldBounds", true);
-		this.netShotAt = 0;
-		this.shotDelay = BasicGame.SHOT_DELAY;
+		this.nextShotAt = 0;
+		this.shotDelay = SantaGame.SHOT_DELAY;
 	},
 
 	setupExplosions: function(){
@@ -309,17 +308,24 @@ BasicGame.Game.prototype = {
 	    this.powerUpPool.setAll('checkWorldBounds', true);
 	    this.powerUpPool.setAll(
 
-	    	'reward', BasicGame.POWERUP_REWARD, false, false, 0, true
+	    	'reward', SantaGame.POWERUP_REWARD, false, false, 0, true
     	);
+
+    	this.powerUpPool.forEach(function(power){
+
+			power.animations.add('fly', [0, 1, 2, 3, 4], 20, true);		//Set anim for each sprite
+			power.play('fly');
+		});
+
 
 		//Life icons
 		this.lives = this.add.group();
 
-		var firstLifeIconX = this.game.width - 10 - (BasicGame.PLAYER_EXTRA_LIVES * 30); //calculate location of 1st life icon
+		var firstLifeIconX = this.game.width - 10 - (SantaGame.PLAYER_EXTRA_LIVES * 30); //calculate location of 1st life icon
 
-		for(var i = 0; i < BasicGame.PLAYER_EXTRA_LIVES; i++){
+		for(var i = 0; i < SantaGame.PLAYER_EXTRA_LIVES; i++){
 
-			var life = this.lives.create(firstLifeIconX + (30 * i), 30, 'player');
+			var life = this.lives.create(firstLifeIconX + (30 * i), 30, 'lives');
 
 			life.scale.setTo(0.5, 0.5);
 			life.anchor.setTo(0.5, 0.5);
@@ -332,22 +338,29 @@ BasicGame.Game.prototype = {
 		this.instructions = this.add.text(						//Add text
 		   			
    			this.game.width / 2,
-   			this.game.height - 100,
+   			this.game.height - 100,/*
 			'Utiliser les flèches du clavier pour bouger, barre espace pour tirer \n' + 
-			'Mobile : Toucher / cliquer pour bouger et tirer',
-			{font: '2em Monospace', fill: '#fff', align: 'center'}	//Style text		
+			'Mobile : Toucher / cliquer pour bouger et tirer',*/
+			'',
+			{font: '2em Open Sans', fill: '#fff', align: 'center'}	//Style text		
 		);
 		this.instructions.anchor.setTo(0.5, 0.5);
-		this.instExpire = this.time.now +  BasicGame.INSTRUCTION_EXPIRE;				//Text expire
+		this.instExpire = this.time.now +  SantaGame.INSTRUCTION_EXPIRE;				//Text expire
 
 		//Score
 		this.score = 0;
 		this.scoreText = this.add.text(
 
 			this.game.width / 2, 30, '' + this.score,
-			{ font: '20px Monospace', fill: '#fff', align: 'center'}
+			{ font: '20px Open Sans', fill: '#fff', align: 'center'}
 		);
 		this.scoreText.anchor.setTo(0.5,  0.5);
+
+		this.bestScoreText = this.add.text(
+
+			10, 10, 'Meilleur score:'+ ' ' + this.highscore,
+			{font: '20px Open Sans', fill: '#fff', align: 'center'}
+		);
 	},
 
 
@@ -355,21 +368,27 @@ BasicGame.Game.prototype = {
 
 	checkCollisions: function(){
 
-	 	//Enemy death
-	    this.physics.arcade.overlap(
+		this.bulletCollideGroup = [];
+		this.enemyCollideGroup = [];
+		this.bulletCollideGroup.push(this.shooterPool, this.enemyPool);
+		this.enemyCollideGroup.push(this.enemyPool, this.shooterPool, this.giftPool, this.enemyBulletPool);
+
+		this.physics.arcade.overlap(
+
+			this.bulletPool, this.bulletCollideGroup, this.enemyHit, null, this
+		);
+
+		this.physics.arcade.overlap(
+			this.player, this.enemyCollideGroup, this.playerHit, null, this
+		);
+
+	 	//Enemy death/*
+	    /*this.physics.arcade.overlap(
 	      this.bulletPool, this.enemyPool, this.enemyHit, null, this
 	    );
 
 	    this.physics.arcade.overlap(
 	      this.bulletPool, this.shooterPool, this.enemyHit, null, this
-	    );
-
-	    this.physics.arcade.overlap(
-	      this.bulletPool, this.destroyerPool, this.enemyHit, null, this
-	    );
-
-	    this.physics.arcade.overlap(
-	      this.bulletPool, this.shooterWavesPool, this.enemyHit, null, this
 	    );
 
 	    //Player death
@@ -379,19 +398,15 @@ BasicGame.Game.prototype = {
 
 	    this.physics.arcade.overlap(
 	      this.player, this.shooterPool, this.playerHit, null, this
-	    );
+	    );*/
 
 	    this.physics.arcade.overlap(
-	      this.player, this.destroyerPool, this.playerHit, null, this
+	      this.player, this.giftPool, this.giftHit, null, this
 	    );
-
-	    this.physics.arcade.overlap(
-	      this.player, this.shooterWavesPool, this.playerHit, null, this
-	    );
-
+		/*
 	    this.physics.arcade.overlap(
 	      this.player, this.enemyBulletPool, this.playerHit, null, this
-	    );
+	    );*/
 
 	    this.physics.arcade.overlap(
 	      this.player, this.powerUpPool, this.playerPowerUp, null, this
@@ -421,102 +436,88 @@ BasicGame.Game.prototype = {
 
 			enemy.reset(
 
-				1400, (this.rnd.integerInRange(20, this.game.height - 20) ), BasicGame.ENEMY_HEALTH 
+				1400, (this.rnd.integerInRange(20, this.game.height - 20) ),SantaGame.ENEMY_HEALTH 
 			);	//Spawn at random location
 
-			enemy.body.velocity.x = this.rnd.integerInRange( BasicGame.ENEMY_MIN_X_VELOCITY, BasicGame.ENEMY_MAX_X_VELOCITY);
+			enemy.body.velocity.x = this.rnd.integerInRange(SantaGame.ENEMY_MIN_X_VELOCITY,SantaGame.ENEMY_MAX_X_VELOCITY);
 			enemy.play('fly');
 		}
 
-		//=>TYPE 2
-		if(this.nextShooterAt < this.time.now && this.shooterPool.countDead() > 0){
+		if(this.score > 2000 && this.score < 24500){
 
-			this.nextShooterAt = this.time.now + this.shooterDelay;
+			//=>TYPE 2
+			if(this.nextShooterAt < this.time.now && this.shooterPool.countDead() > 0){
 
-			var shooter = this.shooterPool.getFirstExists(false);
+				this.nextShooterAt = this.time.now + this.shooterDelay;
 
-			shooter.reset(
+				var shooter = this.shooterPool.getFirstExists(false);
+
+				shooter.reset(
+					
+					1400, (this.rnd.integerInRange(60, this.game.height - 60) ), SantaGame.SHOOTER_HEALTH	//Spawn at random location
+				);
 				
-				1400, (this.rnd.integerInRange(60, this.game.height - 60) ), BasicGame.SHOOTER_HEALTH	//Spawn at random location
-			);
-			
-			//Random target location
-			var target = this.rnd.integerInRange(20, this.game.height - 20),
-				targetX = this.game.width;
+				//Random target location
+				var target = this.rnd.integerInRange(20, this.game.height - 20),
+					targetX = this.game.width;
 
-			//Move to target and rotate the sprite
-			shooter.rotation = this.physics.arcade.moveToXY(
+				//Move to target and rotate the sprite
+				shooter.rotation = this.physics.arcade.moveToXY(
 
-				shooter, -targetX, target, this.rnd.integerInRange(BasicGame.SHOOTER_MIN_VELOCITY, BasicGame.SHOOTER_MAX_VELOCITY)
-			) - Math.PI / 2;
+					shooter, targetX, target, this.rnd.integerInRange(SantaGame.SHOOTER_MIN_VELOCITY, SantaGame.SHOOTER_MAX_VELOCITY)
+				) - Math.PI / 2;
 
-			shooter.play('fly');
+				shooter.play('fly');
 
-			//Shot timer for each shooter
-			shooter.nextShotAt = 0;
-		}
-
-		//=>TYPE 3
-		if(this.nextDestroyerAt < this.time.now && this.destroyerPool.countDead() > 0){
-
-			this.nextDestroyerAt = this.time.now + this.destroyerDelay;
-
-			var destroyer = this.destroyerPool.getFirstExists(false);
-
-			destroyer.reset(
-
-				1400, (this.rnd.integerInRange(20, this.game.height - 20) ), BasicGame.DESTROYER_HEALTH 
-			);	//Spawn at random location
-
-			destroyer.body.velocity.x = this.rnd.integerInRange( BasicGame.DESTROYER_MIN_VELOCITY, BasicGame.DESTROYER_MAX_VELOCITY);
-			destroyer.play('fly');
-
-			destroyer.nextShotAt = 0;
+				//Shot timer for each shooter
+				shooter.nextShotAt = 0;
+			}
 		}
 	},
 
-	spawnEnemiesWaves: function(){
+	spawnGift: function(){
 
-		//Random enemy spawn =>TYPE 4
-		if(this.nextShooterWavesAt < this.time.now && this.shooterWavesPool.countDead() > 0){
+		//Random gift spawn =>TYPE 1
+		if(this.nextGiftAt < this.time.now && this.giftPool.countDead() > 0){
 
 			var startY = this.rnd.integerInRange(100, this.game.height - 100),
-				startX = this.rnd.integerInRange(100, this.game.width - 100),
+				//startX = this.rnd.integerInRange(100, this.game.width - 100),
 				spread = 60,
 				frequency = 70,
 				verticalSpacing = 70,
 				horizontalSpacing = 100,
-				enemyInWaves = 5;
+				giftInWaves = 3;
 
-			for(var i = 0; i < enemyInWaves; i++){
+			for(var i = 0; i < giftInWaves; i++){
 
-				var enemy = this.shooterWavesPool.getFirstExists(false);
+				var gift = this.giftPool.getFirstExists(false);
 
-				if(enemy){
+				if(gift){
 
-					enemy.startY = startY;
-					enemy.startX = startX;
+					gift.startY = startY;
+					//gift.startX = startX;
 
-					enemy.reset(
+					gift.reset(
 
-						200 + this.game.width - horizontalSpacing * i,  verticalSpacing * i, BasicGame.SHOOTERWAVE_HEALTH 
+						this.game.width + (-horizontalSpacing * i),  startY 
 					);
 
-					enemy.body.velocity.x = BasicGame.SHOOTERWAVE_MAX_VELOCITY;
-					enemy.play('fly');
+					gift.body.velocity.x = -SantaGame.GIFT_VELOCITY;
+					//gift.play('fly');
 
-					enemy.update = function(){
+					gift.update = function(){
 
 						this.body.y = this.startY - Math.sin((this.x) / frequency) * spread;
 						
-						if(this.x < this.game.width / 12 - 200){
+						/*if(this.x < this.game.width - 1600){
 
 							this.kill();
-						}
+							this.x = -20;
+						}*/
 					}
 				}
 			}
-			this.nextShooterWavesAt = this.time.now + this.shooterWavesDelay;
+			this.nextGiftAt = this.time.now + this.giftDelay;
 		}
 	},
 
@@ -531,80 +532,67 @@ BasicGame.Game.prototype = {
 				bullet.reset(enemy.x, enemy.y);
 				this.physics.arcade.moveToObject(
 
-					bullet, this.player, BasicGame.ENEMY_BULLET_VELOCITY
+					bullet, this.player, SantaGame.ENEMY_BULLET_VELOCITY
 				);
 
-				enemy.nextShotAt = this.time.now + BasicGame.SHOOTER_SHOT_DELAY;
-				this.enemyFireSFX.play();
-			}
-		}, this);
-
-		this.destroyerPool.forEachAlive(function(enemy){
-
-			if(this.time.now > enemy.nextShotAt && this.enemyBulletPool.countDead() > 0){
-
-				var bullet = this.enemyBulletPool.getFirstExists(false);
-
-				bullet.reset(enemy.x, enemy.y);
-				this.physics.arcade.moveToObject(
-
-					bullet, this.player, BasicGame.ENEMY_BULLET_VELOCITY
-				);
-
-				enemy.nextShotAt = this.time.now + BasicGame.DESTROYER_SHOT_DELAY;
+				enemy.nextShotAt = this.time.now + SantaGame.SHOOTER_SHOT_DELAY;
 				this.enemyFireSFX.play();
 			}
 		}, this);
 
 	    if(this.bossApproaching === false && this.boss.alive && this.boss.nextShotAt < this.time.now && this.enemyBulletPool.countDead() >= 10){
 
-	        this.boss.nextShotAt = this.time.now + BasicGame.BOSS_SHOT_DELAY;
+	        this.boss.nextShotAt = this.time.now + SantaGame.BOSS_SHOT_DELAY;
 	        this.enemyFireSFX.play();
 
 	        for(var i = 0; i < 5; i++){
 
 		        //process 2 bullets at a time
-		        var leftBullet = this.enemyBulletPool.getFirstExists(false);
+		        var topBullet = this.enemyBulletPool.getFirstExists(false);
 
-		        leftBullet.reset(
+		       	topBullet.reset(
 
-		        	this.boss.x, this.boss.y + 20
+		        	this.boss.x + i * 10, this.boss.y + 10
 	        	);
 
-		        var rightBullet = this.enemyBulletPool.getFirstExists(false);
+		        var bottomBullet = this.enemyBulletPool.getFirstExists(false);
 
-		        rightBullet.reset(
+		        bottomBullet.reset(
 
-		        	this.boss.x, this.boss.y - 20
+		        	this.boss.x - i * 10, this.boss.y - i * 10
 	        	);
 
-		       	if(this.boss.health > BasicGame.BOSS_HEALTH / 2){
+		       	if(this.boss.health > SantaGame.BOSS_HEALTH / 2){
 
-		          // aim directly at the player
-		          this.physics.arcade.moveToObject(
+		       		this.boss.body.velocity.x = 0;
+		       		this.boss.body.velocity.x = SantaGame.BOSS_Y_VELOCITY;
 
-		            leftBullet, this.player, BasicGame.ENEMY_BULLET_VELOCITY
-		          );
+			        // aim directly at the player
+			        this.physics.arcade.moveToObject(
 
-		          this.physics.arcade.moveToObject(
+			            topBullet, this.player, SantaGame.ENEMY_BULLET_VELOCITY
+			        );
 
-		            rightBullet, this.player, BasicGame.ENEMY_BULLET_VELOCITY
-		          );
+			        this.physics.arcade.moveToObject(
 
-		        } 
+			        	bottomBullet, this.player, SantaGame.ENEMY_BULLET_VELOCITY
+			        );
+
+		        } /*
+		        else if()this.boss.health > SantaGame.BOSS_HEALTH / 4{
+
+		        }*/
 		        else{
 
 		            // aim slightly off center of the player
 		            this.physics.arcade.moveToXY(
 
-		              leftBullet, this.player.x -  i * 100, this.player.y,
-		              BasicGame.ENEMY_BULLET_VELOCITY
+		              	topBullet, this.player.x, this.player.y - i * 100, SantaGame.ENEMY_BULLET_VELOCITY
 		            );
 
 		            this.physics.arcade.moveToXY(
 
-		              rightBullet, this.player.x + i * 100, this.player.y,
-		              BasicGame.ENEMY_BULLET_VELOCITY
+		              	bottomBullet, this.player.x, this.player.y + i * 100, SantaGame.ENEMY_BULLET_VELOCITY
 		            );
 		        }
 	      	}
@@ -642,16 +630,21 @@ BasicGame.Game.prototype = {
 	      this.physics.arcade.moveToPointer(this.player, this.player.speed);
 	    }
 
-	    if(this.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR) || this.input.activePointer.isDown){
+    	if(this.returnText && this.returnText.exists){
 
-	    	if(this.returnText && this.returnText.exists){
+		    if(this.input.keyboard.isDown(Phaser.Keyboard.Q) ){
 
 	    		this.quitGame();
 	    	}
-	    	else{
-
-	    		this.fire();
+		    else if(this.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR) || this.input.activePointer.isDown){
+	    	
+	    		this.restartGame();
 	    	}
+	    }
+
+	    if(this.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR) || this.input.activePointer.isDown){
+
+    		this.fire();
 	    }
 	},
 
@@ -662,40 +655,38 @@ BasicGame.Game.prototype = {
 	    	this.instructions.destroy();
 	    }
 
-	    if(this.ghostUntil && this.ghostUntil < this.time.now){
+	    else if(this.ghostUntil && this.ghostUntil < this.time.now){
 
 	    	this.ghostUntil = null;
 	    	this.player.play('fly');
 	    }
 
-	    if(this.showReturn && this.time.now > this.showReturn){
+	    else if(this.showReturn && this.time.now > this.showReturn){
 
 	    	this.returnText = this.add.text(
 
 	    		this.game.width / 2, this.game.height / 2 + 100,
-	    		'Appuyez sur la barre ESPACE pour revenir au menu principal', 
-	    		{ font: ' 16px sans-serif', fill: '#fff'} 
+	    		'Appuyez sur la touche Q pour revenir au menu principal \n' +
+	    		'Appuyez sur ESPACE pour recommencez', 
+	    		{ font: ' 16px sans-serif', fill: '#fff', align: 'center'} 
     		);
 
     		this.returnText.anchor.setTo(0.5, 0.5);
     		this.showReturn = false;
 	    }
 
-	    if(this.bossApproaching && this.boss.y > 80){
+	    else if(this.bossApproaching && this.boss.x > 1200){
 
 	    	this.bossApproaching = false;
-	    	console.log(0);
 	    	this.boss.nextShotAt = 0;
-	    	console.log(1);
+
+	    	this.physics.enable(this.boss, Phaser.Physics.ARCADE);
 
 	    	this.boss.body.velocity.y = 0;
-	    	console.log(2);
-	    	this.boss.body.velocity.x = BasicGame.BOSS_X_VELOCITY; 
-	    	console.log(3);
+	    	this.boss.body.velocity.x = SantaGame.BOSS_X_VELOCITY; 
 
+	    	this.boss.body.bounce.y = 0;
 	    	this.boss.body.bounce.x = 1;
-	    	this.boss.body.bounce.y = 1;
-	    	console.log(4);
 	    	this.boss.body.collideWorldBounds = true;
 	    }
 	},
@@ -703,17 +694,18 @@ BasicGame.Game.prototype = {
 	enemyHit: function(bullet, enemy){
 
 		bullet.kill();											//Kill bullet (display off)
-		this.damageEnemy(enemy, BasicGame.BULLET_DAMAGE);
+		this.damageEnemy(enemy, SantaGame.BULLET_DAMAGE);
 	},
 
 	playerHit: function(player, enemy){
+
 		if(this.ghostUntil && this.ghostUntil > this.time.now){	//check if this.ghostUntil is !undefined or null
 
 		      return;
 	    }
 
 	    this.playerExplosionSFX.play();
-		this.damageEnemy(enemy, BasicGame.CRASH_DAMAGE);
+		this.damageEnemy(enemy, SantaGame.CRASH_DAMAGE);
 
 		var life = this.lives.getFirstAlive();
 
@@ -721,7 +713,7 @@ BasicGame.Game.prototype = {
 
 			life.kill();
 			this.weaponLevel = 0;
-			this.ghostUntil = this.time.now + BasicGame.PLAYER_GHOST_TIME;
+			this.ghostUntil = this.time.now + SantaGame.PLAYER_GHOST_TIME;
 			this.player.play('ghost');
 		}
 		else{
@@ -732,6 +724,12 @@ BasicGame.Game.prototype = {
 		}
 	},
 
+	giftHit: function(player, gift){
+
+		gift.kill();
+		this.addToScore(gift.reward);
+	},
+
 	damageEnemy: function(enemy, damage){
 
 		enemy.damage(damage);
@@ -739,6 +737,7 @@ BasicGame.Game.prototype = {
 		if(enemy.alive){
 
 			enemy.play('hit');
+			//console.log(this.boss.health);
 		}
 		else{
 
@@ -764,9 +763,34 @@ BasicGame.Game.prototype = {
 		this.score += score;
 		this.scoreText.text = this.score;
 
-		//prevent boss spawn again upon winning
-		if(this.score >= 10000 && this.bossPool.countDead() == 1){
+		if(this.score >= 0 && this.score < 2000){
 
+			SantaGame.SPAWN_ENEMY_DELAY = Phaser.Timer.SECOND;
+		}
+		else if(this.score >= 2000 && this.score < 5000){
+
+			SantaGame.SPAWN_ENEMY_DELAY = Phaser.Timer.SECOND * 0.8;
+			SantaGame.SPAWN_SHOOTER_DELAY = Phaser.Timer.SECOND * 3;
+		}
+		else if(this.score > 5000 && this.score < 10000){
+
+			SantaGame.SPAWN_ENEMY_DELAY =  Phaser.Timer.SECOND * 0.6;
+			SantaGame.SPAWN_SHOOTER_DELAY = Phaser.Timer.SECOND * 2.5;
+		}
+		else if(this.score > 10000 && this.score < 17500){
+
+			SantaGame.SPAWN_ENEMY_DELAY = Phaser.Timer.SECOND * 0.5;
+			SantaGame.SPAWN_SHOOTER_DELAY = Phaser.Timer.SECOND * 2;
+		}
+		else if(this.score > 17500 && this.score < 25000){
+
+			SantaGame.SPAWN_ENEMY_DELAY = Phaser.Timer.SECOND * 0.3;
+			SantaGame.SPAWN_SHOOTER_DELAY = Phaser.Timer.SECOND * 1.5;
+		}
+		//prevent boss spawn again upon winning
+		else if(this.score >= 25000 && this.bossPool.countDead() == 1){
+
+			SantaGame.SPAWN_ENEMY_DELAY = Phaser.Timer.SECOND * 0.7;
 			this.spawnBoss();
 		}
 	},
@@ -777,7 +801,7 @@ BasicGame.Game.prototype = {
 		powerUp.kill();
 		this.powerUpSFX.play();
 
-		if(this.weaponLevel < 5){
+		if(this.weaponLevel < 3){
 
 			this.weaponLevel++;
 		}
@@ -790,27 +814,38 @@ BasicGame.Game.prototype = {
 			return;
 		}
 
+		//Win or Lose
 		var msg = win ? 'Vous avez gagné !' : 'Vous avez perdu !';
 
 		this.endText = this.add.text(
 
-			this.game.width / 2, this.game.height / 2 - 100, msg, 
+			this.game.width / 2, this.game.height / 2 - 150, msg, 
 			{ font: '80px serif', fill: '#fff'}
 		);
 
 		this.endText.anchor.setTo(0.5, 0);
 
-
+		//Final score
 		this.finalScoreText = this.add.text(
 
-			this.game.width / 2, this.game.height / 2 + 10, this.score + ' PTS', 
-			{ font: '30px Monospace', fill: '#ffa300'}
+			this.game.width / 2, this.game.height / 2 - 35, 'Votre score : ' + this.score + ' PTS', 
+			{ font: '24px Open Sans', fill: '#ffa300'}
 		);
 
 		this.finalScoreText.anchor.setTo(0.5, 0);
 
+		//Highscore
+		this.saveHighscore();
 
-		this.showReturn = this.time.now + BasicGame.RETURN_MESSAGE_DELAY;
+		this.bestScoreText = this.add.text(
+
+			this.game.width / 2, this.game.height / 2 + 20, 'Meilleur score : ' + this.highscore + 'PTS', 
+			{ font: '30px Open Sans',  fill: '#ffa300'}
+		);
+
+		this.bestScoreText.anchor.setTo(0.5, 0);
+
+		this.showReturn = this.time.now + SantaGame.RETURN_MESSAGE_DELAY;
 	},
 
 	explode: function(sprite){
@@ -830,7 +865,7 @@ BasicGame.Game.prototype = {
 
 	spawnPowerUp: function(enemy){
 
-		if(this.powerUpPool.countDead() === 0 || this.weaponLevel === 5){
+		if(this.powerUpPool.countDead() === 0 || this.weaponLevel === 3){
 
 			return;
 		}
@@ -840,7 +875,7 @@ BasicGame.Game.prototype = {
 			var powerUp = this.powerUpPool.getFirstExists(false);
 
 			powerUp.reset(enemy.x, enemy.y);
-			powerUp.body.velocity.x = BasicGame.POWERUP_VELOCITY;
+			powerUp.body.velocity.x = SantaGame.POWERUP_VELOCITY;
 		}
 	},
 	
@@ -848,22 +883,24 @@ BasicGame.Game.prototype = {
 
 		
 		this.bossApproaching = true;
-			    	console.log(5);
 
-		this.boss.reset( this.game.width, this.game.height / 2, BasicGame.BOSS_HEALTH);
-			    	console.log(6);
+		this.boss.reset( 
+
+			this.game.width, this.game.height * 0.5, SantaGame.BOSS_HEALTH
+		);
 
 		this.physics.enable(this.boss, Phaser.Physics.ARCADE);
-			    	console.log(7);
 
-		this.boss.body.velocity.y = BasicGame.BOSS_Y_VELOCITY;
-			    	console.log(8);
-
-		this.boss.body.velocity.x = BasicGame.BOSS_X_VELOCITY;
-			    	console.log("8bis");
+		this.boss.body.velocity.x = SantaGame.BOSS_X_VELOCITY;
+		this.boss.body.velocity.y = 0;
 
 		this.boss.play('fly');
-			    	console.log(9);
+
+		if(this.boss.health > SantaGame.BOSS_HEALTH / 2){
+
+			this.boss.body.velocity.x = 0;
+			this.boss.body.velocity.y = SantaGame.BOSS_Y_VELOCITY;
+		}
 	},	    	
 
 	fire: function(){
@@ -887,7 +924,7 @@ BasicGame.Game.prototype = {
 
 	      	bullet = this.bulletPool.getFirstExists(false);
 	      	bullet.reset(this.player.x + 20, this.player.y);
-	      	bullet.body.velocity.x = BasicGame.BULLET_VELOCITY;
+	      	bullet.body.velocity.x = SantaGame.BULLET_VELOCITY;
 	    } 
 	    else{
 
@@ -907,7 +944,7 @@ BasicGame.Game.prototype = {
 
 		        this.physics.arcade.velocityFromAngle(
 
-		          5 - i * 10, BasicGame.BULLET_VELOCITY, bullet.body.velocity //the left bullets spread from -95 degrees to -135 degrees
+		          -5 - i * 10, SantaGame.BULLET_VELOCITY, bullet.body.velocity //the left bullets spread from -95 degrees to -135 degrees
 		        );
 
 		        bullet = this.bulletPool.getFirstExists(false);
@@ -918,30 +955,130 @@ BasicGame.Game.prototype = {
 
 		        this.physics.arcade.velocityFromAngle(
 
-		          -5 + i * 10, BasicGame.BULLET_VELOCITY, bullet.body.velocity  //the right bullets spread from -85 degrees to -45
+		          5 - i * 10, SantaGame.BULLET_VELOCITY, bullet.body.velocity  //the right bullets spread from -85 degrees to -45
 		   	    );
 		    }
 	    }
 	},
 
-	quitGame: function(pointer){
+	assetsDestroy: function(){
 
 		//Destroy all no longer needed
-		this.sea.destroy();
+		this.sky.destroy();
+		this.mountain.destroy();
+		this.mountain2.destroy();
+		this.mountain3.destroy();
+		this.forest.destroy();
+
+		this.snowEmmitter.destroy();
+
 	    this.player.destroy();
+
 	    this.enemyPool.destroy();
-	    this.bulletPool.destroy();
 	    this.explosionPool.destroy();
 	    this.shooterPool.destroy();
+
+	    this.bulletPool.destroy();
 	    this.enemyBulletPool.destroy();
 	    this.powerUpPool.destroy();
+
 	    this.bossPool.destroy();
+
 	    this.instructions.destroy();
 	    this.scoreText.destroy();
 	    this.endText.destroy();
 	    this.returnText.destroy();
+	}, 
+
+	quitGame: function(pointer){
 	
+		this.assetsDestroy();
+		
 	    //Go back to main menu
 	    this.state.start('MainMenu');
+	},
+
+	restartGame: function(pointer){
+
+		this.assetsDestroy();
+	
+	    //Go back to main menu
+	    this.state.start('Game');
+	},
+
+	getHighscore: function(){
+
+		this.highscore = localStorage.getItem('AngrySanta.highScore');
+
+		if(this.highscore === null){	
+
+			localStorage.setItem('AngrySanta.highScore', 0);
+			this.highscore = 0;
+		}
+	},
+
+	saveHighscore: function(){
+
+		this.getHighscore();
+
+		if(this.highscore < this.score){
+
+			this.highscore = this.score;
+			localStorage.setItem('AngrySanta.highScore', this.highscore);
+		}
+		else{
+
+			return this.highscore;
+		}
+	},
+
+	updateWindDirection: function(){
+
+		this.interval = 4 * 60;
+
+		var  i = 0;
+		i++;
+
+		if( i === this.interval){
+
+			this.changeWindDirection();
+
+			this.interval = Math.floor(Math.random() * 20) * 60; //0-20s at 60fps
+
+			i = 0;
+		}
+	},
+
+	changeWindDirection: function(){
+
+		var max = 0;
+
+		var multi = Math.floor((max + 200) / 4),
+			frag = (Math.floor(Math.random() * 100) - multi);
+
+		this.max = max + frag;
+
+		if(this.max > 200){
+
+			this.max = -50;
+		}
+
+		else if(this.max < -200){
+
+			this.max = -250;
+		}
+
+		this.setXSpeed(this.snowEmmitter, this.max);
+	},
+
+	setXSpeed: function(emitter, max){
+
+		emitter.setXSpeed(-max - 20, max);
+		emitter.forEachAlive(this.setParticleXSpeed, this, max);
+	},
+
+	setParticleXSpeed: function(particle, max){
+
+		particle.body.velocity.x = -max - Math.floor(Math.random() * 30);
 	}
 };

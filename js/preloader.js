@@ -1,12 +1,12 @@
 // Loads all assets before the actual game. Once that’s done, the game proceeds to MainMenu.
 
-BasicGame.Preloader = function(game){
+SantaGame.Preloader = function(game){
 
 	this.background = null;
 	this.preloadBar = null;
 };
 
-BasicGame.Preloader.prototype = {
+SantaGame.Preloader.prototype = {
 
 	preload: function(){
 
@@ -18,27 +18,41 @@ BasicGame.Preloader.prototype = {
 
 			this.game.width / 2, this.game.height / 2 - 30,
 			'Chargement...',
-			{ font: '32px Monospace', fill: '#fff'}
+			{ font: '32px Open Sans', fill: '#fff'}
 		).anchor.setTo(0.5, 0.5);
 
 		//Set load bar as loader sprite
 		this.load.setPreloadSprite(this.preloadBar);
 
 		//Load the rest of assets
-		this.load.image('titlepage', '/assets/utils/titlepage.png');
-		this.load.image('sea', '/assets/layers/sea.png');
-		this.load.image('bullet', '/assets/bullet/bullet.png');
-		this.load.image('enemyBullet', '/assets/bullet/enemy-bullet.png');
-		this.load.image('powerup1', '/assets/object/powerup1.png');
-		this.load.image('powerup2', '/assets/object/powerup2.png');
-		this.load.spritesheet('greenEnemy', '/assets/enemy/enemy.png', 32, 32);
-		this.load.spritesheet('whiteEnemy', '/assets/enemy/shooting-enemy.png', 32, 32);
-		this.load.spritesheet('destroyerEnemy', '/assets/enemy/destroyer.png', 32, 174);
-		this.load.spritesheet('boss', '/assets/boss/boss.png', 93, 75);
+		this.load.image('titlepage', '/assets/utils/mainmenu.png');
+
+		this.load.image('sky', '/assets/layers/layer-sky.png');
+		this.load.image('mountain1', '/assets/layers/layer-1.png');
+		this.load.image('mountain2', '/assets/layers/layer-2.png');
+		this.load.image('mountain3', '/assets/layers/layer-3.png');
+		this.load.image('forest', '/assets/layers/layer-4.png');
+		this.load.image('snow1', '/assets/layers/snow-1.png');
+
+		this.load.image('bullet', '/assets/bullet/bullet-player.png');
+		this.load.image('enemyBullet', '/assets/bullet/bullet-enemy.png');
+
+		this.load.spritesheet('powerup1', '/assets/object/powerup.png', 32, 32);
+		this.load.image('gift', '/assets/object/gift.png');
+		this.load.image('snowflakes', '/assets/object/snowflake.png');
+
+		this.load.spritesheet('greenEnemy', '/assets/enemy/enemy-2.png', 32, 32);
+		this.load.spritesheet('whiteEnemy', '/assets/enemy/enemy-1.png', 82, 82);
+		this.load.spritesheet('boss', '/assets/boss/boss-snowman.png', 126, 138);
+
 		this.load.spritesheet('explosion', '/assets/object/explosion.png', 32, 32);
-		this.load.spritesheet('player', '/assets/player/player.png', 64, 64);
+
+		this.load.spritesheet('player', '/assets/player/santa.png', 220, 128);
+
+		this.load.image('lives', '/assets/object/lives.png');
 
 		this.load.audio('explosion', ['assets/sound/explosion.ogg', 'assets/sound/explosion.wav']);
+		this.load.audio('ambiance', ['assets/sound/bg-music.wav']);
 		this.load.audio('playerExplosion', ['assets/sound/player-explosion.ogg', 'assets/sound/player-explosion.wav']);
 		this.load.audio('enemyFire', ['assets/sound/enemy-fire.ogg', 'assets/sound/enemy-fire.wav']);
 		this.load.audio('playerFire', ['assets/sound/player-fire.ogg', 'assets/sound/player-fire.wav']);
@@ -55,4 +69,4 @@ BasicGame.Preloader.prototype = {
 
 		this.state.start('MainMenu');
 	}
-}
+};

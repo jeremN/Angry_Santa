@@ -6,8 +6,8 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="keywords" content="">
+    <meta name="description" content="L'horrible bonhomme de neige à voler les cadeaux du Père Noël! Aidez le à vaincre ses ennemis, récupérer les cadeaux des griffes du bonhomme de neige">
+    <meta name="keywords" content="Noël, Christmas, jeux, game, santa, claus, angry, Père Noël, html, javascript, shoot'em up, phaser, js">
     <meta name="author" content="Jeremie Nehlil">
 
     <!--Facebook Share window-->
@@ -20,25 +20,10 @@
     <title>Angry Santa</title>
 
     <!--Fav-->
-    <link rel="icon" type="image/png" href="/img/.png" />
-
+    <link rel="icon" type="image/png" href="/img/favicon.png" />
+        
     <!-- Custom CSS -->
-    <!--<link href="/css/style.css" rel="stylesheet">-->
-    
-    <style type="text/css">
-            
-        body{
-            width: 100%;
-            margin: auto;
-        }
-
-        #gameContainer{
-            max-width: 1400px;
-            margin: 2em auto;
-        }
-
-    </style>
-
+    <link href="/css/style.css" rel="stylesheet">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -49,9 +34,27 @@
 
 </head>
 <body>
-
-    <div id="gameContainer"></div>
+    <div class="loader">
+        
+    </div>
     
+    <div id="gameContainer" class="animated"></div>
+
+    <div id="turn">
+        Ce jeu nécéssite d'être en mode paysage !
+    </div>
+
+    <div class="container">
+
+        <div id="title">
+            <h1><img src="/img/background/title-santa.png" alt="Angry Santa"></h1>
+
+            <button id="playGame" class="btn">Jouer</button>
+        </div>
+
+            
+    </div>
+
 
     <!--Jquery CDN-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
