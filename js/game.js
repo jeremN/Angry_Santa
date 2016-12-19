@@ -11,6 +11,7 @@ SantaGame.Game.prototype = {
 		this.setupParticles();
 		this.setupPlayer();
     	this.setupEnemies();
+    	this.setupCollectibles();
     	this.setupBullets();
     	this.setupExplosions();
     	this.setupPlayerIcons();
@@ -27,6 +28,7 @@ SantaGame.Game.prototype = {
 
  		this.checkCollisions();
     	this.spawnEnemies();
+    	this.spawnGift();
     	this.updateWindDirection();
     	this.enemyFire();
     	this.processPlayerInput();
@@ -155,7 +157,6 @@ SantaGame.Game.prototype = {
 		this.shooterPool.createMultiple(20, 'whiteEnemy');
 		this.shooterPool.setAll('anchor.x', 0.5);				
 		this.shooterPool.setAll('anchor.y', 0.5);
-		this.shooterPool.setAll('angle', 0);
 		this.shooterPool.setAll('scale.x', 0.65);
 		this.shooterPool.setAll('scale.y', 0.65);
 		this.shooterPool.setAll('outOfBoundsKill', true);		
@@ -464,7 +465,7 @@ SantaGame.Game.prototype = {
 				//Move to target and rotate the sprite
 				shooter.rotation = this.physics.arcade.moveToXY(
 
-					shooter, targetX, target, this.rnd.integerInRange(SantaGame.SHOOTER_MIN_VELOCITY, SantaGame.SHOOTER_MAX_VELOCITY)
+					shooter, -targetX, target, this.rnd.integerInRange(SantaGame.SHOOTER_MIN_VELOCITY, SantaGame.SHOOTER_MAX_VELOCITY)
 				) - Math.PI / 2;
 
 				shooter.play('fly');
@@ -565,7 +566,7 @@ SantaGame.Game.prototype = {
 		       	if(this.boss.health > SantaGame.BOSS_HEALTH / 2){
 
 		       		this.boss.body.velocity.x = 0;
-		       		this.boss.body.velocity.x = SantaGame.BOSS_Y_VELOCITY;
+		       		this.boss.body.velocity.y = SantaGame.BOSS_Y_VELOCITY;
 
 			        // aim directly at the player
 			        this.physics.arcade.moveToObject(
@@ -752,6 +753,7 @@ SantaGame.Game.prototype = {
 				this.enemyPool.destroy();
 				this.shooterPool.destroy();
 				this.bossPool.destroy();
+				this.giftPool.destroy();
 				this.enemyBulletPool.destroy();
 				this.displayEnd(true);
 			}
@@ -895,12 +897,6 @@ SantaGame.Game.prototype = {
 		this.boss.body.velocity.y = 0;
 
 		this.boss.play('fly');
-
-		if(this.boss.health > SantaGame.BOSS_HEALTH / 2){
-
-			this.boss.body.velocity.x = 0;
-			this.boss.body.velocity.y = SantaGame.BOSS_Y_VELOCITY;
-		}
 	},	    	
 
 	fire: function(){
@@ -981,6 +977,7 @@ SantaGame.Game.prototype = {
 	    this.bulletPool.destroy();
 	    this.enemyBulletPool.destroy();
 	    this.powerUpPool.destroy();
+	    this.giftPool.destroy();
 
 	    this.bossPool.destroy();
 
