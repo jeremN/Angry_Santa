@@ -125,6 +125,12 @@ h1 img {
   display: none;
 }
 
+#turn > div {
+  margin: 45vh auto;
+  text-align: center;
+  width: 100%;
+}
+
 /*Components*/
 .btn {
   width: 10em;
@@ -153,7 +159,7 @@ h1 img {
 /*Media Queries*/
 @media screen and (min-width: 768px) {
   h1 {
-    margin-top: 40%;
+    margin-top: 5%;
   }
   h1 img {
     max-width: 600px;

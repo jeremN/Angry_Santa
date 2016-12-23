@@ -62,4 +62,10 @@ h1{
 	background-repeat:no-repeat;
 	background-position: center center;
 	display:none;
+
+	& > div{
+		margin: 45vh auto;
+		text-align: center;
+		width: 100%;
+	}
 }

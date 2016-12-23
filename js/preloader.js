@@ -10,10 +10,14 @@ SantaGame.Preloader.prototype = {
 
 	preload: function(){
 
+	    //Preloader assets
+	    //this.load.image('preloaderBar', '/assets/utils/preloaderbar.png');
+
+
 		//Show the load bar
 		this.stage.backgroundColor = '#2d2d2d';
 
-		this.preloadBar = this.add.sprite(this.game.width / 2 - 100, this.game.height / 2, 'preloaderBar');
+		//this.preloadBar = this.add.sprite(this.game.width / 2 - 100, this.game.height / 2, 'preloaderBar');
 		this.add.text(
 
 			this.game.width / 2, this.game.height / 2 - 30,
@@ -22,7 +26,7 @@ SantaGame.Preloader.prototype = {
 		).anchor.setTo(0.5, 0.5);
 
 		//Set load bar as loader sprite
-		this.load.setPreloadSprite(this.preloadBar);
+		//this.load.setPreloadSprite(this.preloadBar);
 
 		//Load the rest of assets
 		this.load.image('titlepage', '/assets/utils/mainmenu.png');
@@ -51,18 +55,18 @@ SantaGame.Preloader.prototype = {
 
 		this.load.image('lives', '/assets/object/lives.png');
 
-		this.load.audio('explosion', ['assets/sound/explosion.ogg', 'assets/sound/explosion.wav']);
-		this.load.audio('ambiance', ['assets/sound/bg-music.wav']);
-		this.load.audio('playerExplosion', ['assets/sound/player-explosion.ogg', 'assets/sound/player-explosion.wav']);
-		this.load.audio('enemyFire', ['assets/sound/enemy-fire.ogg', 'assets/sound/enemy-fire.wav']);
-		this.load.audio('playerFire', ['assets/sound/player-fire.ogg', 'assets/sound/player-fire.wav']);
-		this.load.audio('powerUp', ['assets/sound/powerup.ogg', 'assets/sound/powerup.wav']);
+		this.load.audio('explosion', ['/assets/sound/explosion.ogg', 'assets/sound/explosion.wav']);
+		this.load.audio('ambiance', ['/assets/sound/music-bg.wav', 'assets/sound/music-bg.ogg']);
+		this.load.audio('playerExplosion', ['/assets/sound/player-explosion.ogg', 'assets/sound/player-explosion.wav']);
+		this.load.audio('enemyFire', ['/assets/sound/enemy-fire.ogg', 'assets/sound/enemy-fire.wav']);
+		this.load.audio('playerFire', ['/assets/sound/player-fire.ogg', 'assets/sound/player-fire.wav']);
+		this.load.audio('powerUp', ['/assets/sound/powerup.ogg', 'assets/sound/powerup.wav']);
 	}, 
 
 	create: function(){
 
 		//Once load finished, disable cropping
-		this.preloadBar.cropEnabled = false;
+		//this.preloadBar.cropEnabled = false;
 	},
 
 	update: function(){

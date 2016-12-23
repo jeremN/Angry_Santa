@@ -11,7 +11,7 @@ var SantaGame = {
   SHOOTER_MAX_VELOCITY: 400,
   GIFT_VELOCITY: 200,
   BOSS_Y_VELOCITY: 200,
-  BOSS_X_VELOCITY: 200,
+  BOSS_X_VELOCITY: -200,
   BULLET_VELOCITY: 500,
   ENEMY_BULLET_VELOCITY: 350,
   POWERUP_VELOCITY: -400,
@@ -75,9 +75,6 @@ SantaGame.Boot.prototype = {
   },
 
   preaload: function(){
-
-    //Preloader assets
-    this.load.image('preloaderBar', '/assets/utils/preloader-bar.png');
   },
 
 	create: function(){

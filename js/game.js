@@ -54,8 +54,8 @@ SantaGame.Game.prototype = {
 
 		this.sound.volume = 0.3;
 
-		//this.ambianceSFX = this.add.audio('ambiance');
-		//this.ambianceSFX.play();
+		this.ambianceSFX = this.add.audio('ambiance');
+		this.ambianceSFX.play();
 		this.explosionSFX = this.add.audio('explosion');
 		this.playerExplosionSFX = this.add.audio('playerExplosion');
 	    this.enemyFireSFX = this.add.audio('enemyFire');
@@ -339,10 +339,9 @@ SantaGame.Game.prototype = {
 		this.instructions = this.add.text(						//Add text
 		   			
    			this.game.width / 2,
-   			this.game.height - 100,/*
-			'Utiliser les flèches du clavier pour bouger, barre espace pour tirer \n' + 
-			'Mobile : Toucher / cliquer pour bouger et tirer',*/
-			'',
+   			this.game.height - 100,
+			'Appuyez sur M pour couper le son \n' + 
+			'Toucher / cliquer pour bouger et tirer',
 			{font: '2em Open Sans', fill: '#fff', align: 'center'}	//Style text		
 		);
 		this.instructions.anchor.setTo(0.5, 0.5);
@@ -372,7 +371,7 @@ SantaGame.Game.prototype = {
 		this.bulletCollideGroup = [];
 		this.enemyCollideGroup = [];
 		this.bulletCollideGroup.push(this.shooterPool, this.enemyPool);
-		this.enemyCollideGroup.push(this.enemyPool, this.shooterPool, this.giftPool, this.enemyBulletPool);
+		this.enemyCollideGroup.push(this.enemyPool, this.shooterPool, this.enemyBulletPool);
 
 		this.physics.arcade.overlap(
 
@@ -383,31 +382,9 @@ SantaGame.Game.prototype = {
 			this.player, this.enemyCollideGroup, this.playerHit, null, this
 		);
 
-	 	//Enemy death/*
-	    /*this.physics.arcade.overlap(
-	      this.bulletPool, this.enemyPool, this.enemyHit, null, this
-	    );
-
-	    this.physics.arcade.overlap(
-	      this.bulletPool, this.shooterPool, this.enemyHit, null, this
-	    );
-
-	    //Player death
-	    this.physics.arcade.overlap(
-	      this.player, this.enemyPool, this.playerHit, null, this
-	    );
-
-	    this.physics.arcade.overlap(
-	      this.player, this.shooterPool, this.playerHit, null, this
-	    );*/
-
 	    this.physics.arcade.overlap(
 	      this.player, this.giftPool, this.giftHit, null, this
 	    );
-		/*
-	    this.physics.arcade.overlap(
-	      this.player, this.enemyBulletPool, this.playerHit, null, this
-	    );*/
 
 	    this.physics.arcade.overlap(
 	      this.player, this.powerUpPool, this.playerPowerUp, null, this
@@ -565,9 +542,6 @@ SantaGame.Game.prototype = {
 
 		       	if(this.boss.health > SantaGame.BOSS_HEALTH / 2){
 
-		       		this.boss.body.velocity.x = 0;
-		       		this.boss.body.velocity.y = SantaGame.BOSS_Y_VELOCITY;
-
 			        // aim directly at the player
 			        this.physics.arcade.moveToObject(
 
@@ -646,6 +620,11 @@ SantaGame.Game.prototype = {
 	    if(this.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR) || this.input.activePointer.isDown){
 
     		this.fire();
+	    }
+
+	    if(this.input.keyboard.isDown(Phaser.Keyboard.M) ){
+
+	    	this.soundMute();
 	    }
 	},
 
@@ -985,6 +964,8 @@ SantaGame.Game.prototype = {
 	    this.scoreText.destroy();
 	    this.endText.destroy();
 	    this.returnText.destroy();
+
+	    this.sound.mute = false;
 	}, 
 
 	quitGame: function(pointer){
@@ -1077,5 +1058,17 @@ SantaGame.Game.prototype = {
 	setParticleXSpeed: function(particle, max){
 
 		particle.body.velocity.x = -max - Math.floor(Math.random() * 30);
+	},
+
+	soundMute: function(){
+
+		if(!this.game.sound.mute){
+
+			this.game.sound.mute = true;
+		}
+		else{
+
+			this.game.sound.mute = false;
+		}
 	}
 };
